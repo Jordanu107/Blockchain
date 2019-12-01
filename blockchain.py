@@ -1,6 +1,8 @@
 from transaction import Transaction
 from block import Block
-import time
+from time import time
+import hashlib
+
 
 # Blueprint of a blockchain
 class Blackchain(object):
@@ -8,16 +10,16 @@ class Blackchain(object):
     def __init__(self):
         self.chain = []
         self.current_transactions = []
-        self.new_block = Block(1, 100) # Create the genesis block
+        self.new_block = Block(1, 100)  # Create the genesis block
 
     def new_block(self, previous_hash, proof):
         """
         Creates a new block and adds it to the existing chain
-        :param previous_hash:
-        :param proof:
-        :return: the added block
+        :param previous_hash: <str>
+        :param proof: <int>
+        :return: <block>
         """
-        current_block = Block(len(self.chain) + 1, time.time(),
+        current_block = Block(len(self.chain) + 1, time(),
                               self.current_transactions, previous_hash, proof)
 
         # Delete all the transactions added to the new block
@@ -29,10 +31,10 @@ class Blackchain(object):
     def new_transaction(self, sender, receiver, amount):
         """
         Adds a transaction to a list of current transactions
-        :param sender:
-        :param receiver:
-        :param amount:
-        :return: Index of the next block, the one that has yet to be mined
+        :param sender: <user>
+        :param receiver: <user>
+        :param amount: <int>
+        :return: <int> Index of the next block, the one that has yet to be mined
         """
         current_transaction = Transaction(sender, receiver, amount)
         self.current_transactions.append(current_transaction)
@@ -43,7 +45,41 @@ class Blackchain(object):
     def last_block(self):
         return self.chain[-1]
 
-    # Hashes a block
     @staticmethod
     def hash_block(block):
-        pass
+        """
+        Hashes a block with SHA256 hash algorithm
+        :param block: <block>
+        :return: <str>
+        """
+        return hashlib.sha256(str(block)).hexdigest()
+
+    def proof_of_work(self, last_proof):
+        """
+        Simple proof of work algorithm - Find a number p', such that hash(pp')
+        contains 3 trailing zeros, where p is the previous proof and p' is
+        the new proof
+        :param last_proof: <int>
+        :return: <int>
+        """
+
+        proof = 0
+
+        while not self.valid_proof(last_proof, proof):
+            proof += 1
+
+        return proof
+
+    @staticmethod
+    def valid_proof(last_proof, proof):
+        """
+        Validates the proof: Does hash(last_proof, proof) have 3 trailing zeroes
+        :param last_proof: <int> Previous proof
+        :param proof: <int> Current proof
+        :return: <bool> True if correct, otherwise false
+        """
+
+        guess = format('{last_proof}{proof}').encode()
+        guess_hash = hashlib.sha256(guess).hexdigest()
+
+        return guess_hash[-3] == "000"
