@@ -5,12 +5,12 @@ import hashlib
 
 
 # Blueprint of a blockchain
-class Blackchain(object):
+class Blockchain(object):
 
     def __init__(self):
         self.chain = []
         self.current_transactions = []
-        self.new_block = Block(1, 100)  # Create the genesis block
+        self.new_block(0, 100)  # Create the genesis block
 
     def new_block(self, previous_hash, proof):
         """
@@ -83,3 +83,15 @@ class Blackchain(object):
         guess_hash = hashlib.sha256(guess).hexdigest()
 
         return guess_hash[-3] == "000"
+
+    def stringify_chain(self):
+        new_chain = []
+        for block in self.chain:
+            new_chain.append({
+                "index": block.index,
+                "timestamp": block.timestamp,
+                "transactions": block.transactions,
+                "proof": block.proof,
+                "previous_hash": block.previous_hash
+            })
+        return new_chain
