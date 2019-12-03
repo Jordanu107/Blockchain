@@ -22,7 +22,7 @@ def homepage():
 @app.route('/mine', methods=['GET'])
 def mine():
     last_block = new_blockchain.last_block
-    last_proof = last_block['proof']
+    last_proof = last_block.proof
     proof = new_blockchain.proof_of_work(last_proof)
 
     # Reward the miner by adding a transaction to give miner coins
@@ -34,10 +34,10 @@ def mine():
 
     response = {
         'message': "New Block Forged",
-        "index": block['index'],
-        "transactions": block['transactions'],
-        "proof": block['proof'],
-        "previous_hash": block['previous_hash']
+        "index": block.index,
+        "transactions": block.transactions,
+        "proof": block.proof,
+        "previous_hash": block.previous_hash
     }
 
     return flask.jsonify(response), 200
@@ -54,7 +54,7 @@ def new_transactions():
 
     # Create new transaction and send a success response to the user
     index = new_blockchain.new_transaction(values['sender'], values['receiver'], values['amount'])
-    response = {'message': 'Transaction will be added to Block %d' % (index)}
+    response = {'message': 'Transaction will be added to Block %d' % index}
     return flask.jsonify(response), 200
 
 

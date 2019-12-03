@@ -1,6 +1,7 @@
 from transaction import Transaction
 from block import Block
 from time import time
+import json
 import hashlib
 
 
@@ -37,8 +38,8 @@ class Blockchain(object):
         :return: <int> Index of the next block, the one that has yet to be mined
         """
         current_transaction = Transaction(sender, receiver, amount)
-        self.current_transactions.append(current_transaction)
-        return self.last_block['index'] + 1
+        self.current_transactions.append(vars(current_transaction))
+        return self.last_block.index + 1
 
     # Returns the most recent block added to the chain
     @property
@@ -52,7 +53,9 @@ class Blockchain(object):
         :param block: <block>
         :return: <str>
         """
-        return hashlib.sha256(str(block)).hexdigest()
+
+        encoded_block = json.dumps(vars(block), sort_keys=True).encode()
+        return hashlib.sha256(encoded_block).hexdigest()
 
     def proof_of_work(self, last_proof):
         """
@@ -77,9 +80,11 @@ class Blockchain(object):
         :param last_proof: <int> Previous proof
         :param proof: <int> Current proof
         :return: <bool> True if correct, otherwise false
+
+        NOTE: for more info, see: https://en.wikipedia.org/wiki/Hashcash
         """
 
-        guess = format('{last_proof}{proof}').encode()
+        guess = ("%s%s" % (last_proof, proof)).encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
 
         return guess_hash[-3] == "000"
