@@ -87,7 +87,7 @@ class Blockchain(object):
         guess = ("%s%s" % (last_proof, proof)).encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
 
-        return guess_hash[-3] == "000"
+        return guess_hash[-3:] == "000"
 
     def stringify_chain(self):
         new_chain = []
